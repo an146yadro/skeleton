@@ -5,6 +5,7 @@ import dbus
 import dbus.service
 import dbus.mainloop.glib
 from obmc.dbuslib.bindings import get_dbus, DbusProperties, DbusObjectManager
+import os, time
 
 DBUS_NAME = 'org.openbmc.control.Chassis'
 OBJ_NAME = '/org/openbmc/control/chassis0'
@@ -121,12 +122,12 @@ class ChassisControlObject(DbusProperties, DbusObjectManager):
     @dbus.service.method(DBUS_NAME,
                          in_signature='', out_signature='')
     def reboot(self):
-        print "Rebooting"
-        if self.getPowerState() == POWER_OFF:
-            self.powerOn()
-        else:
-            self.Set(DBUS_NAME, "reboot", 1)
-            self.powerOff()
+        print "Rebooting: power off"
+        os.system("obmcutil poweroff")
+        while os.system("obmcutil power | grep -A 1 'pgood = 0' | grep 'state = 0'") != 0:
+            time.sleep(0.2)
+        print "Rebooting: power on"
+        os.system("obmcutil poweron")
         return None
 
     @dbus.service.method(DBUS_NAME,
