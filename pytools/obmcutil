@@ -4,6 +4,15 @@ import sys
 import dbus
 import json
 import xml.etree.ElementTree as ET
+import os.path
+
+
+critpoffpath = "/tmp/poweroff.log"
+if os.path.isfile(critpoffpath):
+    print "!!! forced power off (preventing overheat):"
+    subprocess.check_call("cat " + critpoffpath, shell=True)
+    subprocess.check_call("rm " + critpoffpath, shell=True)
+    print ""
 
 
 def fix_byte(it, key, parent):
