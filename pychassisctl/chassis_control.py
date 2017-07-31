@@ -98,8 +98,11 @@ class ChassisControlObject(DbusProperties, DbusObjectManager):
     @dbus.service.method(DBUS_NAME,
                          in_signature='', out_signature='')
     def powerOn(self):
-        print "Turn on power and boot via obmcutil"
-        os.system("obmcutil poweron")
+        print "Turn on power and boot"
+        self.Set(DBUS_NAME, "reboot", 0)
+        intf = self.getInterface('systemd')
+        f = getattr(intf, 'StartUnit')
+        f.call_async('obmc-host-start@0.target', 'replace')
         return None
 
     @dbus.service.method(DBUS_NAME,
@@ -115,8 +118,10 @@ class ChassisControlObject(DbusProperties, DbusObjectManager):
     @dbus.service.method(DBUS_NAME,
                          in_signature='', out_signature='')
     def softPowerOff(self):
-        print "Soft off power via obmcutil"
-        os.system("obmcutil poweroff")
+        print "Soft off power"
+        intf = self.getInterface('host_services')
+        ## host services will call power off when ready
+        intf.SoftPowerOff()
         return None
 
     @dbus.service.method(DBUS_NAME,
