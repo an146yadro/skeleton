@@ -56,7 +56,7 @@ on_button_interrupt( GIOChannel *channel,
 		if(buf[0] == '0')
 		{
 			printf("Power Button pressed\n");
-			button_emit_pressed(button);
+			//button_emit_pressed(button);
 			button_set_timer(button,(long)current_time);
 		}
 		else
@@ -65,9 +65,9 @@ on_button_interrupt( GIOChannel *channel,
 			printf("Power Button released, held for %ld seconds\n",press_time);
 			if(press_time > LONG_PRESS_SECONDS)
 			{
-				button_emit_pressed_long(button);
+				//button_emit_pressed_long(button);
 			} else {
-				button_emit_released(button);
+				//button_emit_released(button);
 			}
 		}
 	}
