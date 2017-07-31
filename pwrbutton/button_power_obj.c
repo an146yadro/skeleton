@@ -63,6 +63,7 @@ on_button_interrupt( GIOChannel *channel,
 		{
 			long press_time = current_time-button_get_timer(button);
 			printf("Power Button released, held for %ld seconds\n",press_time);
+			system("obmc-toggle");
 			if(press_time > LONG_PRESS_SECONDS)
 			{
 				//button_emit_pressed_long(button);
