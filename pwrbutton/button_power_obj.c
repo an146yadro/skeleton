@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <openbmc_intf.h>
 #include <gpio.h>
 #include <openbmc.h>
@@ -57,19 +56,18 @@ on_button_interrupt( GIOChannel *channel,
 		if(buf[0] == '0')
 		{
 			printf("Power Button pressed\n");
-			//button_emit_pressed(button);
+			button_emit_pressed(button);
 			button_set_timer(button,(long)current_time);
 		}
 		else
 		{
 			long press_time = current_time-button_get_timer(button);
 			printf("Power Button released, held for %ld seconds\n",press_time);
-			system("obmc-toggle");
 			if(press_time > LONG_PRESS_SECONDS)
 			{
-				//button_emit_pressed_long(button);
+				button_emit_pressed_long(button);
 			} else {
-				//button_emit_released(button);
+				button_emit_released(button);
 			}
 		}
 	}
