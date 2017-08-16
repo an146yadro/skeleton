@@ -46,9 +46,9 @@ class ChassisControlObject(DbusProperties, DbusObjectManager):
                 'interface_name': 'org.openbmc.control.Power'
             },
             'host_services': {
-                'bus_name': 'org.openbmc.control.Chassis',
-                'object_name': '/org/openbmc/control/chassis0',
-                'interface_name': 'org.openbmc.control.Chassis'
+                'bus_name': 'org.openbmc.HostServices',
+                'object_name': '/org/openbmc/HostServices',
+                'interface_name': 'org.openbmc.HostServices'
             },
             'settings': {
                 'bus_name': 'org.openbmc.settings.Host',
@@ -99,10 +99,10 @@ class ChassisControlObject(DbusProperties, DbusObjectManager):
                          in_signature='', out_signature='')
     def powerOn(self):
         print "Turn on power and boot"
-        self.Set(DBUS_NAME, "reboot", 0)
         intf = self.getInterface('systemd')
         f = getattr(intf, 'StartUnit')
         f.call_async('obmc-host-start@0.target', 'replace')
+        self.Set(DBUS_NAME, "reboot", 0)
         return None
 
     @dbus.service.method(DBUS_NAME,
@@ -126,12 +126,13 @@ class ChassisControlObject(DbusProperties, DbusObjectManager):
     @dbus.service.method(DBUS_NAME,
                          in_signature='', out_signature='')
     def reboot(self):
-        print "Rebooting: power off"
-        os.system("obmcutil poweroff")
-        while os.system("obmcutil power | grep -A 1 'pgood = 0' | grep 'state = 0'") != 0:
-            time.sleep(0.2)
-        print "Rebooting: power on"
-        os.system("obmcutil poweron")
+        print "Rebooting"
+        if self.getPowerState() == POWER_OFF:
+            self.powerOn()
+            self.Set(DBUS_NAME, "reboot", 0)
+        else:
+            self.Set(DBUS_NAME, "reboot", 1)
+            self.powerOff()
         return None
 
     @dbus.service.method(DBUS_NAME,
