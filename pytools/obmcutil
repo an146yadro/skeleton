@@ -5,6 +5,7 @@ import dbus
 import json
 import xml.etree.ElementTree as ET
 import os.path
+import subprocess
 
 
 critpoffpath = "/tmp/poweroff.log"
